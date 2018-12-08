@@ -42,7 +42,18 @@ class Downloader(QDialog):
     def download(self):
         url =self.url.text()
         save_location = self.save_location.text()
-        urllib.request.urlretrieve(url,save_location,self.report)
+            
+        #Handling internet fail error
+        try:
+            urllib.request.urlretrieve(url,save_location,self.report)
+        except Exception:
+            QMessageBox.warning(self,"Warning","The download failed")
+
+        #Reset to default after download
+        QMessageBox.information(self, "Information", "The Download is complete")
+        self.progress.setValue(0)
+        self.url.setText("")
+        self.save_location.setText("")
 
     def report (self, blocknum, blocksize, totalsize):
         readsofar = blocknum * blocksize
