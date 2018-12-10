@@ -18,6 +18,7 @@ class Calculator_Class(main.Ui_MainWindow, QtGui.QMainWindow):
         self.pb_7.clicked.connect(lambda: self.display_screen('7'))
         self.pb_8.clicked.connect(lambda: self.display_screen('8'))
         self.pb_9.clicked.connect(lambda: self.display_screen('9'))
+        self.pb_dot.clicked.connect(lambda: self.display_screen('.'))
 
         self.pb_add.clicked.connect(lambda: self.display_screen(' + '))
         self.pb_minus.clicked.connect(lambda: self.display_screen(' - '))
@@ -26,20 +27,41 @@ class Calculator_Class(main.Ui_MainWindow, QtGui.QMainWindow):
 
         self.pb_clear.clicked.connect(self.screen_LE.clear)
         self.pb_back.clicked.connect(self.screen_LE.backspace)
+        self.pb_equal.clicked.connect(self.calculation)
+
+        self.screen_LE.setReadOnly(True)
+
 
     def display_screen(self, value):
+        """
+        this functions inserts data to screen
+        """
         self.screen_LE.insert(value)
 
-    def calculation(self, val1, val2, operator):
+    def calculation(self):
+        """
+        Calculation function that takes valuses from screen and passes to maths function
+        """
+        screen_value = str(self.screen_LE.text()).split(' ')
+        val1 = float(screen_value[0])
+        operator = screen_value[1]
+        val2 = float(screen_value[2])
+        result = self.maths(val1, val2, operator)
+        self.screen_LE.setText(str(result))
+
+    def maths(self, val1, val2, operator):
+        """
+        Maths functions takes arguements and returns output
+        """
         val1 = float(val1)
         val2 = float(val2)
-        if operator is 'add':
+        if operator is '+':
             return val1+val2
-        elif operator is 'sub':
+        elif operator is '-':
             return val1-val2
-        elif operator is 'divide':
+        elif operator is '/':
             return val1/val2
-        elif operator is 'multiply':
+        elif operator is '*':
             return val1 * val2
 
 

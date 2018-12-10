@@ -162,7 +162,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(_translate("MainWindow", "Python Calculator", None))
+        MainWindow.setWindowTitle(_translate("MainWindow", "Pondi Calculator", None))
         self.pb_back.setText(_translate("MainWindow", "Back", None))
         self.pb_clear.setText(_translate("MainWindow", "Clear", None))
         self.pb_7.setText(_translate("MainWindow", "7", None))
