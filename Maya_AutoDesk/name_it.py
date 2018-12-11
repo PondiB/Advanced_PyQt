@@ -16,6 +16,26 @@ class NameIt(qg.QDialog):
         self.layout().setSpacing(0)
         self.layout().setAlignment(qc.Qt.AlignTop)
 
+        #RENAME Widget
+        rename_widget = qg.QWidget()
+        rename_widget.setLayout(qg.QVBoxLayout())
+        rename_widget.layout().setContentsMargin(0,0,0,0)
+        rename_widget.layout().setSpacing(2)
+        rename_widget.setSizePolicy(qg.QSizePolicy.Minimum,qg.QSizePolicy.Fixed)
+
+        self.layout().addWidget(rename_widget)
+
+        #REPLACE Widget
+        replace_widget = qg.QWidget()
+        replace_widget.setLayout(qg.QVBoxLayout())
+        replace_widget.layout().setContentsMargin(0,0,0,0)
+        replace_widget.layout().setSpacing(2)
+        replace_widget.setSizePolicy(qg.QSizePolicy.Minimum,qg.QSizePolicy.Fixed)
+
+        self.layout().addWidget(rename_widget)
+
+
+
 #---------------------------------------------------------------------#
 def create():
     global dialog
