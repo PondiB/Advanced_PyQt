@@ -43,6 +43,10 @@ class NameIt(qg.QDialog):
         rename_le  = qg.QLineEdit()
         rename_text_layout.addWidget(rename_text_lb)
         rename_text_layout.addWidget(rename_le)
+        #Validator
+        reg_ex =qc.QRegExp("^(?!^_)[a-zA-Z]+")
+        text_validator = qg.QRegExpValidator(reg_ex,rename_le)
+        rename_le.setValidator(text_validator)
 
         rename_widget.layout().addLayout(SplitterLayout())
 
@@ -71,19 +75,19 @@ class NameIt(qg.QDialog):
         frame_pad_spin.setMinimum(0)
         frame_pad_spin.setMaximum(10)
 
-        lower_radio = qg.QRadioButton('Lowercase')
-        upper_radio = qg.QRadioButton('Uppercase')
-        lower_radio.setVisible(False)
-        upper_radio.setVisible(False)
-        lower_radio.setFixedHeight(19)
-        upper_radio.setFixedHeight(19)
-        lower_radio.setChecked(True)
+        self.lower_radio = qg.QRadioButton('Lowercase')
+        self.upper_radio = qg.QRadioButton('Uppercase')
+        self.lower_radio.setVisible(False)
+        self.upper_radio.setVisible(False)
+        self.lower_radio.setFixedHeight(19)
+        self.upper_radio.setFixedHeight(19)
+        self.lower_radio.setChecked(True)
 
         mult_options_layout.addWidget(frame_pad_lb)
-        mult_options_layout.addWidget(lower_radio)
+        mult_options_layout.addWidget(self.lower_radio)
         mult_options_layout.addSpacerItem(qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding))
         mult_options_layout.addWidget(frame_pad_spin)
-        mult_options_layout.addWidget(upper_radio)
+        mult_options_layout.addWidget(self.upper_radio)
 
         rename_widget.layout().addLayout(SplitterLayout())
 
@@ -96,11 +100,13 @@ class NameIt(qg.QDialog):
         prefix_le  = qg.QLineEdit()
         prefix_le.setEnabled(False)
         prefix_le.setFixedWidth(85)
+        prefix_le.setValidator(text_validator)
 
         suffix_check = qg.QCheckBox('Suffix:')
         suffix_le  = qg.QLineEdit()
         suffix_le.setEnabled(False)
         suffix_le.setFixedWidth(85)
+        suffix_le.setValidator(text_validator)
 
         fix_layout.addWidget(prefix_check)
         fix_layout.addWidget(prefix_le)
@@ -144,6 +150,11 @@ class NameIt(qg.QDialog):
 
         replace_lb.setFixedWidth(55)
         with_lb.setFixedWidth(55)
+
+        reg_ex = qc.QRegExp("[a-zA-Z_]+")
+        text_validator = qg.QRegExpValidator(reg_ex,replace_le)
+        replace_le.setValidator(text_validator)
+        with_le.setValidator(text_validator)
 
         replace_layout = qg.QHBoxLayout()
         replace_layout.setContentsMargins(4,0,4,0)
@@ -189,6 +200,19 @@ class NameIt(qg.QDialog):
         replace_bttn_layout.setAlignment(qc.Qt.AlignRight)
         replace_bttn_layout.addWidget(replace_bttn)
         replace_widget.layout().addLayout(replace_bttn_layout)
+
+        #Connect Modifiers
+        #
+        prefix_check.stateChanged.connect(prefix_le.setEnabled)
+        suffix_check.stateChanged.connect(suffix_le.setEnabled)
+
+        rename_mult_method_combo.currentIndexChanged.connect(self._toggleMultNamingMethod)
+
+    def _toggleMultNamingMethod(self, index):
+        self.lower_radio.setVisible(index)
+        self.upper_radio.setVisible(index)
+        self.frame_pad_lb.setVisible(not(index))
+        self.frame_pad_spin.setVisible(not(index))
 
 #------------------------------------------------------------------------------#
 
