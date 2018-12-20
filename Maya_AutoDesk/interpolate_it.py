@@ -3,7 +3,7 @@ import PyQt4.QtGui  as qg
 
 import maya.cmds  as mc
 import pymel.core as pm
-from utils.generic import undo
+from utils.generic import undo_pm
 
 import maya.OpenMayaUI as mui
 import sip
@@ -13,13 +13,14 @@ END        = 'end'
 CACHE      = 'cache'
 NODE       = 'node'
 
+#--------------------------------------------------------------------------------------------------#
 
 class InterpolateIt(qg.QDialog):
     def __init__(self):
         qg.QDialog.__init__(self)
         self.setWindowFlags(qc.Qt.WindowStaysOnTopHint)
-        self.setObjectName('InterpolateIt')
         self.setWindowTitle('Interpolate It')
+        self.setObjectName('InterpolateIt')
         self.setFixedWidth(314)
 
         self.setLayout(qg.QVBoxLayout())
@@ -27,8 +28,8 @@ class InterpolateIt(qg.QDialog):
         self.layout().setSpacing(0)
 
         scroll_area = qg.QScrollArea()
-        scroll_area.setFocusPolicy(qc.Qt.NoFocus)
         scroll_area.setWidgetResizable(True)
+        scroll_area.setFocusPolicy(qc.Qt.NoFocus)
         scroll_area.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
         self.layout().addWidget(scroll_area)
 
@@ -50,15 +51,15 @@ class InterpolateIt(qg.QDialog):
         button_layout.setAlignment(qc.Qt.AlignRight)
         main_layout.addLayout(button_layout)
 
-        add_button = qg.QPushButton('New...', parent=self)
+        add_button = qg.QPushButton('New..')
         button_layout.addWidget(add_button)
 
         new_widget = InterpolateWidget()
         new_widget.hideCloseButton()
         self.interp_layout.addWidget(new_widget)
 
-        self._interp_widget = []
-        self._interp_widget.append(new_widget)
+        self._interp_widgets = []
+        self._interp_widgets.append(new_widget)
 
         self._dock_widget = self._dock_name = None
 
@@ -68,16 +69,16 @@ class InterpolateIt(qg.QDialog):
 
     def add(self):
         new_widget = InterpolateWidget()
-        self.interp_layout.addWidget(new_widget)
-        self._interp_widget.append(new_widget)
-        self.connect(new_widget, qc.SIGNAL('CLOSE'), self.remove)
         new_widget.setFixedHeight(0)
+        self.connect(new_widget, qc.SIGNAL('CLOSE'), self.remove)
+        self.interp_layout.addWidget(new_widget)
+        self._interp_widgets.append(new_widget)
         new_widget._animateExpand(True)
 
 
     def remove(self, interp_widget):
         self.connect(interp_widget, qc.SIGNAL('DELETE'), self._delete)
-        self._interp_widget.remove(interp_widget)
+        self._interp_widgets.remove(interp_widget)
         interp_widget._animateExpand(False)
 
 
@@ -103,32 +104,44 @@ class InterpolateIt(qg.QDialog):
 #--------------------------------------------------------------------------------------------------#
 
 class InterpolateWidget(qg.QFrame):
-    def __init__(self, *args, **kwargs):
-        qg.QFrame.__init__(self, *args, **kwargs)
+    def __init__(self):
+        qg.QFrame.__init__(self)
+        self.setFrameStyle(qg.QFrame.Panel | qg.QFrame.Raised)
 
         self.setLayout(qg.QVBoxLayout())
-        self.layout().setContentsMargins(5,5,5,5)
+        self.layout().setContentsMargins(3,1,3,3)
         self.layout().setSpacing(0)
-        self.setFrameStyle(qg.QFrame.Panel | qg.QFrame.Raised)
         self.setFixedHeight(150)
 
-        self.main_widget = qg.QWidget()
-        self.main_widget.setObjectName('mainWidget')
-        self.main_widget.setLayout(qg.QVBoxLayout())
-        self.main_widget.layout().setContentsMargins(2,2,2,2)
-        self.main_widget.layout().setSpacing(5)
-        self.layout().addWidget(self.main_widget)
+        main_widget = qg.QWidget()
+        main_widget.setLayout(qg.QVBoxLayout())
+        main_widget.layout().setContentsMargins(2,2,2,2)
+        main_widget.layout().setSpacing(5)
+        main_widget.setFixedHeight(140)
+        main_widget.setFixedWidth(290)
+
+        graphics_scene = qg.QGraphicsScene()
+        graphics_view = qg.QGraphicsView()
+        graphics_view.setScene(graphics_scene)
+        graphics_view.setHorizontalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+        graphics_view.setVerticalScrollBarPolicy(qc.Qt.ScrollBarAlwaysOff)
+        graphics_view.setFocusPolicy(qc.Qt.NoFocus)
+        graphics_view.setStyleSheet("QGraphicsView {border-style: none;}")
+        graphics_view.setSizePolicy(qg.QSizePolicy.Minimum, qg.QSizePolicy.Minimum)
+        self.layout().addWidget(graphics_view)
+        self.main_widget_proxy = graphics_scene.addWidget(main_widget)
+        main_widget.setParent(graphics_view)
 
         title_layout  = qg.QHBoxLayout()
         select_layout = qg.QHBoxLayout()
         button_layout = qg.QHBoxLayout()
         slider_layout = qg.QHBoxLayout()
         check_layout  = qg.QHBoxLayout()
-        self.main_widget.layout().addLayout(title_layout)
-        self.main_widget.layout().addLayout(select_layout)
-        self.main_widget.layout().addLayout(button_layout)
-        self.main_widget.layout().addLayout(slider_layout)
-        self.main_widget.layout().addLayout(check_layout)
+        main_widget.layout().addLayout(title_layout)
+        main_widget.layout().addLayout(select_layout)
+        main_widget.layout().addLayout(button_layout)
+        main_widget.layout().addLayout(slider_layout)
+        main_widget.layout().addLayout(check_layout)
 
         title_line = qg.QLineEdit('Untitled')
         title_layout.addWidget(title_line)
@@ -172,6 +185,7 @@ class InterpolateWidget(qg.QFrame):
 
         self.items = {}
         self.slider_down = False
+        self._animation = None
 
         self.close_bttn.clicked.connect(self.closeWidget)
 
@@ -179,11 +193,10 @@ class InterpolateWidget(qg.QFrame):
         clear_items.clicked.connect(self.clearItems)
 
         self.store_start_bttn.clicked.connect(self.storeStart)
-        self.reset_item_bttn.clicked.connect(self.resetAttributes)
         self.store_end_bttn.clicked.connect(self.storeEnd)
+        self.reset_item_bttn.clicked.connect(self.resetAttributes)
 
         self.slider.valueChanged.connect(self.setLinearInterpolation)
-
         self.slider.sliderReleased.connect(self._endSliderUndo)
 
         self.enableButtons(False)
@@ -191,6 +204,18 @@ class InterpolateWidget(qg.QFrame):
     #------------------------------------------------------------------------------------------#
 
     def _animateExpand(self, value):
+        opacity_anim = qc.QPropertyAnimation(self.main_widget_proxy, "opacity")
+
+        opacity_anim.setStartValue(not(value));
+        opacity_anim.setEndValue(value)
+        opacity_anim.setDuration(200)
+        opacity_anim_curve = qc.QEasingCurve()
+        if value:
+            opacity_anim_curve.setType(qc.QEasingCurve.InQuad)
+        else:
+            opacity_anim_curve.setType(qc.QEasingCurve.OutQuad)
+        opacity_anim.setEasingCurve(opacity_anim_curve)
+
         size_anim = qc.QPropertyAnimation(self, "geometry")
 
         geometry = self.geometry()
@@ -203,7 +228,6 @@ class InterpolateWidget(qg.QFrame):
         size_anim.setStartValue(size_start)
         size_anim.setEndValue(size_end)
         size_anim.setDuration(300)
-
         size_anim_curve = qc.QEasingCurve()
         if value:
             size_anim_curve.setType(qc.QEasingCurve.InQuad)
@@ -211,11 +235,23 @@ class InterpolateWidget(qg.QFrame):
             size_anim_curve.setType(qc.QEasingCurve.OutQuad)
         size_anim.setEasingCurve(size_anim_curve)
 
-        self._animation = size_anim
+        self._animation = qc.QSequentialAnimationGroup()
+        if value:
+            self.main_widget_proxy.setOpacity(0)
+            self._animation.addAnimation(size_anim)
+            self._animation.addAnimation(opacity_anim)
+        else:
+            self.main_widget_proxy.setOpacity(1)
+            self._animation.addAnimation(opacity_anim)
+            self._animation.addAnimation(size_anim)
+
         size_anim.valueChanged.connect(self._forceResize)
+        self._animation.finished.connect(self._animation.clear)
+
         if not value:
-            size_anim.finished.connect(self.deleteWidget)
-        size_anim.start(qc.QAbstractAnimation.DeleteWhenStopped)
+            self._animation.finished.connect(self.deleteWidget)
+
+        self._animation.start(qc.QAbstractAnimation.DeleteWhenStopped)
 
 
     def _forceResize(self, new_height):
@@ -236,7 +272,7 @@ class InterpolateWidget(qg.QFrame):
     def storeItems(self):
         selection = pm.ls(sl=True, fl=True)
         if not selection:
-            return False
+            return
 
         self.items = {}
         for node in selection:
@@ -281,9 +317,9 @@ class InterpolateWidget(qg.QFrame):
 
     def _store(self, key, value):
         for item_dict in self.items.values():
-            node  = item_dict[NODE]
+            node = item_dict[NODE]
             attrs = self.getAttributes(node)
-            data  = item_dict[key]
+            data = item_dict[key]
             for attr in attrs:
                 data[attr] = node.attr(attr).get()
 
@@ -308,11 +344,12 @@ class InterpolateWidget(qg.QFrame):
             for attr in attrs:
                 start_attr = start[attr]
                 end_attr   = end[attr]
+
                 if start_attr == end_attr:
                     cache[attr] = None
                 else:
                     cache_values = cache[attr] = []
-                    interval    = float(end_attr - start_attr) / 49.0
+                    interval     = float(end_attr - start_attr) / 49.0
                     for index in range(50):
                         cache_values.append((interval * index) + start_attr)
 
@@ -329,20 +366,21 @@ class InterpolateWidget(qg.QFrame):
 
         if self.attributes_chbx.isChecked():
             for attr in node.listAttr(ud=True):
-                if attr.isLocked(): continue
                 if attr.type() not in ('double', 'int'): continue
+                if attr.isLocked(): continue
 
                 attrs.append(attr.name().split('.')[-1])
 
         return attrs
 
 
-    def resetAttributes(self):
+    @undo_pm
+    def resetAttributes(self, *args):
         if not self.items:
             return
 
         for item_dict in self.items.values():
-            node  = item_dict[NODE]
+            node = item_dict[NODE]
             attrs = self.getAttributes(node)
 
             for attr in attrs:
@@ -352,8 +390,7 @@ class InterpolateWidget(qg.QFrame):
     #------------------------------------------------------------------------------------------#
 
     def setLinearInterpolation(self, value):
-        if not self.items:
-            return
+        if not self.items: return
 
         if not self.slider_down:
             self._startSliderUndo()
@@ -369,7 +406,7 @@ class InterpolateWidget(qg.QFrame):
 
             for attr in cache.keys():
                 if cache[attr] == None: continue
-                node.attr(attr).set(cache[attr][value])
+                pm.setAttr(node.attr(attr), cache[attr][value])
 
     #------------------------------------------------------------------------------------------#
 
@@ -385,7 +422,6 @@ dialog = None
 
 def create(docked=True):
     global dialog
-
     if dialog is None:
         dialog = InterpolateIt()
 
