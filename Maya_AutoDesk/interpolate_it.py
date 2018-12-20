@@ -54,6 +54,7 @@ class InterpolateIt(qg.QDialog):
         button_layout.addWidget(add_button)
 
         new_widget = InterpolateWidget()
+        new_widget.hideCloseButton()
         self.interp_layout.addWidget(new_widget)
 
         self._interp_widget = []
@@ -69,10 +70,21 @@ class InterpolateIt(qg.QDialog):
         new_widget = InterpolateWidget()
         self.interp_layout.addWidget(new_widget)
         self._interp_widget.append(new_widget)
+        self.connect(new_widget, qc.SIGNAL('CLOSE'), self.remove)
+        new_widget.setFixedHeight(0)
+        new_widget._animateExpand(True)
 
 
     def remove(self, interp_widget):
+        self.connect(interp_widget, qc.SIGNAL('DELETE'), self._delete)
         self._interp_widget.remove(interp_widget)
+        interp_widget._animateExpand(False)
+
+
+    def _delete(self, interp_widget):
+        self.interp_layout.removeWidget(interp_widget)
+        interp_widget._animation = None
+        interp_widget.deleteLater()
 
     #------------------------------------------------------------------------------------------#
 
@@ -107,14 +119,24 @@ class InterpolateWidget(qg.QFrame):
         self.main_widget.layout().setSpacing(5)
         self.layout().addWidget(self.main_widget)
 
+        title_layout  = qg.QHBoxLayout()
         select_layout = qg.QHBoxLayout()
         button_layout = qg.QHBoxLayout()
         slider_layout = qg.QHBoxLayout()
         check_layout  = qg.QHBoxLayout()
+        self.main_widget.layout().addLayout(title_layout)
         self.main_widget.layout().addLayout(select_layout)
         self.main_widget.layout().addLayout(button_layout)
         self.main_widget.layout().addLayout(slider_layout)
         self.main_widget.layout().addLayout(check_layout)
+
+        title_line = qg.QLineEdit('Untitled')
+        title_layout.addWidget(title_line)
+
+        self.close_bttn = qg.QPushButton('X')
+        self.close_bttn.setFixedHeight(20)
+        self.close_bttn.setFixedWidth(20)
+        title_layout.addWidget(self.close_bttn)
 
         store_items = qg.QPushButton('Store Items')
         clear_items = qg.QPushButton('Clear Items')
@@ -151,6 +173,8 @@ class InterpolateWidget(qg.QFrame):
         self.items = {}
         self.slider_down = False
 
+        self.close_bttn.clicked.connect(self.closeWidget)
+
         store_items.clicked.connect(self.storeItems)
         clear_items.clicked.connect(self.clearItems)
 
@@ -163,6 +187,39 @@ class InterpolateWidget(qg.QFrame):
         self.slider.sliderReleased.connect(self._endSliderUndo)
 
         self.enableButtons(False)
+
+    #------------------------------------------------------------------------------------------#
+
+    def _animateExpand(self, value):
+        size_anim = qc.QPropertyAnimation(self, "geometry")
+
+        geometry = self.geometry()
+        width    = geometry.width()
+        x, y, _, _ = geometry.getCoords()
+
+        size_start = qc.QRect(x, y, width, int(not(value)) * 150)
+        size_end   = qc.QRect(x, y, width, value * 150)
+
+        size_anim.setStartValue(size_start)
+        size_anim.setEndValue(size_end)
+        size_anim.setDuration(300)
+
+        size_anim_curve = qc.QEasingCurve()
+        if value:
+            size_anim_curve.setType(qc.QEasingCurve.InQuad)
+        else:
+            size_anim_curve.setType(qc.QEasingCurve.OutQuad)
+        size_anim.setEasingCurve(size_anim_curve)
+
+        self._animation = size_anim
+        size_anim.valueChanged.connect(self._forceResize)
+        if not value:
+            size_anim.finished.connect(self.deleteWidget)
+        size_anim.start(qc.QAbstractAnimation.DeleteWhenStopped)
+
+
+    def _forceResize(self, new_height):
+        self.setFixedHeight(new_height.toRect().height())
 
     #------------------------------------------------------------------------------------------#
 
@@ -203,6 +260,10 @@ class InterpolateWidget(qg.QFrame):
         self.slider.setEnabled(value)
         self.start_lb.setEnabled(value)
         self.end_lb.setEnabled(value)
+
+
+    def hideCloseButton(self, value=True):
+        self.close_bttn.setVisible(not(value))
 
     #------------------------------------------------------------------------------------------#
 
@@ -309,6 +370,14 @@ class InterpolateWidget(qg.QFrame):
             for attr in cache.keys():
                 if cache[attr] == None: continue
                 node.attr(attr).set(cache[attr][value])
+
+    #------------------------------------------------------------------------------------------#
+
+    def closeWidget(self):
+        self.emit(qc.SIGNAL('CLOSE'), self)
+
+    def deleteWidget(self):
+        self.emit(qc.SIGNAL('DELETE'), self)
 
 #--------------------------------------------------------------------------------------------------#
 
