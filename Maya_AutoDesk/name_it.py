@@ -31,7 +31,7 @@ class NameIt(qg.QDialog):
                                     qg.QSizePolicy.Fixed)
         self.layout().addWidget(rename_widget)
 
-        rename_splitter = Splitter("RENAME")
+        rename_splitter = Splitter('RENAME')
         rename_widget.layout().addWidget(rename_splitter)
 
         rename_text_layout = qg.QHBoxLayout()
@@ -40,22 +40,23 @@ class NameIt(qg.QDialog):
         rename_widget.layout().addLayout(rename_text_layout)
 
         rename_text_lb = qg.QLabel('New Name:')
-        self.rename_le      = qg.QLineEdit()
+        self.rename_le  = qg.QLineEdit()
         rename_text_layout.addWidget(rename_text_lb)
         rename_text_layout.addWidget(self.rename_le)
 
-        reg_ex = qc.QRegExp("^(?!^_)[a-zA-Z_]+") #############################################################
+        reg_ex = qc.QRegExp("^(?!^_)[a-zA-Z_]+")
         text_validator = qg.QRegExpValidator(reg_ex, self.rename_le)
         self.rename_le.setValidator(text_validator)
 
-        rename_widget.layout().addLayout(SplitterLayout())
+        name_splitter = SplitterLayout()
+        rename_widget.layout().addLayout(name_splitter)
 
         rename_mult_layout = qg.QHBoxLayout()
         rename_mult_layout.setContentsMargins(4,0,4,0)
         rename_mult_layout.setSpacing(2)
         rename_widget.layout().addLayout(rename_mult_layout)
 
-        rename_mult_method_lb    = qg.QLabel('Multiples Naming Method:')
+        rename_mult_method_lb = qg.QLabel('Multiples Naming Method:')
         self.rename_mult_method_combo = qg.QComboBox()
         self.rename_mult_method_combo.addItem('Numbers (0-9)')
         self.rename_mult_method_combo.addItem('Letters (a-z)')
@@ -69,7 +70,7 @@ class NameIt(qg.QDialog):
         mult_options_layout.setSpacing(2)
         rename_widget.layout().addLayout(mult_options_layout)
 
-        self.frame_pad_lb   = qg.QLabel('No. Padding:')
+        self.frame_pad_lb = qg.QLabel('No. Padding:')
         self.frame_pad_spin = qg.QSpinBox()
         self.frame_pad_spin.setFixedWidth(40)
         self.frame_pad_spin.setMinimum(0)
@@ -83,13 +84,15 @@ class NameIt(qg.QDialog):
         self.upper_radio.setFixedHeight(19)
         self.lower_radio.setChecked(True)
 
+        mult_splitter = SplitterLayout()
+        rename_widget.layout().addLayout(mult_splitter)
+
         mult_options_layout.addWidget(self.frame_pad_lb)
         mult_options_layout.addWidget(self.lower_radio)
-        mult_options_layout.addSpacerItem(qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding))
+        spacer_item = qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding)
+        mult_options_layout.addSpacerItem(spacer_item)
         mult_options_layout.addWidget(self.frame_pad_spin)
         mult_options_layout.addWidget(self.upper_radio)
-
-        rename_widget.layout().addLayout(SplitterLayout())
 
         fix_layout = qg.QHBoxLayout()
         fix_layout.setContentsMargins(4,0,4,0)
@@ -97,37 +100,37 @@ class NameIt(qg.QDialog):
         rename_widget.layout().addLayout(fix_layout)
 
         self.prefix_check = qg.QCheckBox('Prefix:')
-        self.prefix_le    = qg.QLineEdit()
+        self.prefix_le  = qg.QLineEdit()
+        self.prefix_le.setValidator(text_validator)
         self.prefix_le.setEnabled(False)
         self.prefix_le.setFixedWidth(85)
-        self.prefix_le.setValidator(text_validator)
 
         self.suffix_check = qg.QCheckBox('Suffix:')
-        self.suffix_le    = qg.QLineEdit()
+        self.suffix_le  = qg.QLineEdit()
+        self.suffix_le.setValidator(text_validator)
         self.suffix_le.setEnabled(False)
         self.suffix_le.setFixedWidth(85)
-        self.suffix_le.setValidator(text_validator)
 
         fix_layout.addWidget(self.prefix_check)
         fix_layout.addWidget(self.prefix_le)
-        fix_layout.addSpacerItem(qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding))
+        spacer_item = qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding)
+        fix_layout.addSpacerItem(spacer_item)
         fix_layout.addWidget(self.suffix_check)
         fix_layout.addWidget(self.suffix_le)
 
-        rename_widget.layout().addLayout(SplitterLayout())
+        fix_splitter = SplitterLayout()
+        rename_widget.layout().addLayout(fix_splitter)
 
+        self.rename_lb = qg.QLabel()
+        self.rename_bttn = qg.QPushButton('Rename')
+        self.rename_bttn.setFixedHeight(20)
+        self.rename_bttn.setFixedWidth(55)
         rename_bttn_layout = qg.QHBoxLayout()
         rename_bttn_layout.setContentsMargins(4,0,4,0)
         rename_bttn_layout.setSpacing(0)
-        rename_widget.layout().addLayout(rename_bttn_layout)
-
-        self.rename_lb = qg.QLabel('e.g.')
-        rename_bttn = qg.QPushButton('Rename')
-        rename_bttn.setFixedHeight(20)
-        rename_bttn.setFixedWidth(55)
-
         rename_bttn_layout.addWidget(self.rename_lb)
-        rename_bttn_layout.addWidget(rename_bttn)
+        rename_bttn_layout.addWidget(self.rename_bttn)
+        rename_widget.layout().addLayout(rename_bttn_layout)
 
         spacer_item = qg.QSpacerItem(20, 20, qg.QSizePolicy.Fixed)
         self.layout().addSpacerItem(spacer_item)
@@ -142,15 +145,15 @@ class NameIt(qg.QDialog):
                                      qg.QSizePolicy.Fixed)
         self.layout().addWidget(replace_widget)
 
-        replace_splitter = Splitter("FIND/REPLACE")
+        replace_splitter = Splitter('FIND/REPLACE')
         replace_widget.layout().addWidget(replace_splitter)
 
-        replace_lb = qg.QLabel('Find:')
+        replace_lb     = qg.QLabel('Find:')
         self.replace_le = qg.QLineEdit()
-        with_lb    = qg.QLabel('Replace:')
+        with_lb        = qg.QLabel('Replace:')
         self.with_le    = qg.QLineEdit()
 
-        reg_ex = qc.QRegExp("[a-zA-Z_]+") ##############################################################
+        reg_ex = qc.QRegExp("[a-zA-Z_]+")
         text_validator = qg.QRegExpValidator(reg_ex, self.replace_le)
         self.replace_le.setValidator(text_validator)
         self.with_le.setValidator(text_validator)
@@ -172,57 +175,56 @@ class NameIt(qg.QDialog):
         with_layout.addWidget(self.with_le)
         replace_widget.layout().addLayout(with_layout)
 
-        replace_widget.layout().addLayout(SplitterLayout())
-
-        selection_layout = qg.QHBoxLayout()
-        selection_layout.setContentsMargins(4,0,4,0)
-        selection_layout.setSpacing(2)
-        replace_widget.layout().addLayout(selection_layout)
+        with_splitter = SplitterLayout()
+        replace_widget.layout().addLayout(with_splitter)
 
         selection_mode_lb = qg.QLabel('Selection Mode:')
         self.all_radio = qg.QRadioButton('All')
         self.all_radio.setFixedHeight(19)
         self.all_radio.setChecked(True)
-        selected_radio = qg.QRadioButton('Selected')
-        selected_radio.setFixedHeight(19)
+        self.selected_radio = qg.QRadioButton('Selected')
+        self.selected_radio.setFixedHeight(19)
 
+        selection_layout = qg.QHBoxLayout()
+        selection_layout.setContentsMargins(4,0,4,0)
+        selection_layout.setSpacing(2)
         selection_layout.addWidget(selection_mode_lb)
         spacer_item = qg.QSpacerItem(5,5,qg.QSizePolicy.Expanding)
         selection_layout.addSpacerItem(spacer_item)
         selection_layout.addWidget(self.all_radio)
-        selection_layout.addWidget(selected_radio)
+        selection_layout.addWidget(self.selected_radio)
+        replace_widget.layout().addLayout(selection_layout)
 
-        replace_widget.layout().addLayout(SplitterLayout())
+        selection_splitter = SplitterLayout()
+        replace_widget.layout().addLayout(selection_splitter)
 
-        replace_bttn = qg.QPushButton('Replace')
-        replace_bttn.setFixedHeight(20)
-        replace_bttn.setFixedWidth(55)
+        self.replace_bttn = qg.QPushButton('Replace')
+        self.replace_bttn.setFixedHeight(20)
+        self.replace_bttn.setFixedWidth(55)
         replace_bttn_layout = qg.QHBoxLayout()
         replace_bttn_layout.setContentsMargins(4,0,4,0)
         replace_bttn_layout.setSpacing(0)
         replace_bttn_layout.setAlignment(qc.Qt.AlignRight)
-        replace_bttn_layout.addWidget(replace_bttn)
+        replace_bttn_layout.addWidget(self.replace_bttn)
         replace_widget.layout().addLayout(replace_bttn_layout)
 
         # connect modifiers
         #
-        self.prefix_check.stateChanged.connect(self.prefix_le.setEnabled)
-        self.suffix_check.stateChanged.connect(self.suffix_le.setEnabled)
-        self.prefix_check.stateChanged.connect(self._updateExampleRename)
-        self.suffix_check.stateChanged.connect(self._updateExampleRename)
-
         self.rename_mult_method_combo.currentIndexChanged.connect(self._toggleMultNamingMethod)
 
         self.lower_radio.clicked.connect(self._updateExampleRename)
         self.upper_radio.clicked.connect(self._updateExampleRename)
         self.frame_pad_spin.valueChanged.connect(self._updateExampleRename)
 
+        self.prefix_check.stateChanged.connect(self._prefixToggle)
+        self.suffix_check.stateChanged.connect(self._suffixToggle)
+
         self.rename_le.textChanged.connect(self._updateExampleRename)
         self.prefix_le.textChanged.connect(self._updateExampleRename)
         self.suffix_le.textChanged.connect(self._updateExampleRename)
 
-        rename_bttn.clicked.connect(self.rename)
-        replace_bttn.clicked.connect(self.replace)
+        self.rename_bttn.clicked.connect(self.rename)
+        self.replace_bttn.clicked.connect(self.replace)
 
         self._updateExampleRename()
 
@@ -234,7 +236,50 @@ class NameIt(qg.QDialog):
         self.frame_pad_lb.setVisible(not(index))
         self.frame_pad_spin.setVisible(not(index))
 
+        self._updateExampleRename()
+
     #----------------------------------------------------------------------#
+
+    def _prefixToggle(self, value):
+        self.prefix_le.setEnabled(value)
+        self._updateExampleRename()
+
+
+    def _suffixToggle(self, value):
+        self.suffix_le.setEnabled(value)
+        self._updateExampleRename()
+
+    #----------------------------------------------------------------------#
+
+    def _updateExampleRename(self):
+        example_text = ''
+
+        text, prefix, suffix, padding, naming_method, upper = self._getRenameSettings()
+        if not text:
+            self.rename_lb.setText('<font color=#646464>e.g.</font>')
+            return
+
+        if prefix: example_text += '%s_' %prefix
+
+        if text:   example_text += '%s_' %text
+
+        if naming_method:
+            if upper: example_text += 'A'
+            else:     example_text += 'a'
+        else:
+            example_text += (padding * '0') + '1'
+
+        if suffix:
+            example_text += '_%s' %suffix
+
+        self.rename_lb.setText('<font color=#646464>e.g. \'%s\'</font>' %example_text)
+
+    #----------------------------------------------------------------------#
+
+    def rename(self):
+        #text, prefix, suffix, padding, naming_method, upper = self._getRenameSettings()
+        names.rename(mc.ls(sl=True), *self._getRenameSettings())
+
 
     def _getRenameSettings(self):
         text = str(self.rename_le.text()).strip()
@@ -256,36 +301,6 @@ class NameIt(qg.QDialog):
 
     #----------------------------------------------------------------------#
 
-    def _updateExampleRename(self):
-        example_text = ''
-
-        text, prefix, suffix, padding, naming_method, upper = self._getRenameSettings()
-
-        if not text:
-            self.rename_lb.setText('<font color=#646464>e.g.</font>')
-            return
-
-        if prefix: example_text += '%s_' %prefix
-
-        example_text += '%s_' %text
-
-        if naming_method:
-            if upper: example_text += 'A'
-            else:     example_text += 'a'
-        else:
-            example_text += (padding * '0') + '1'
-
-        if suffix: example_text += '_%s' %suffix
-
-        self.rename_lb.setText('<font color=#646464>e.g. \'%s\'</font>' %example_text)
-
-    #----------------------------------------------------------------------#
-
-    def rename(self):
-        names.rename(mc.ls(sl=True), *self._getRenameSettings())
-
-    #----------------------------------------------------------------------#
-
     def replace(self):
         replace_text = str(self.replace_le.text())
         with_text    = str(self.with_le.text())
@@ -296,7 +311,6 @@ class NameIt(qg.QDialog):
             nodes = mc.ls(sl=True)
 
         names.find_replace(nodes, replace_text, with_text)
-
 
 #------------------------------------------------------------------------------#
 
@@ -314,18 +328,16 @@ class Splitter(qg.QWidget):
         first_line.setFrameStyle(qg.QFrame.HLine)
         self.layout().addWidget(first_line)
 
-        main_color   = 'rgba( %s, %s, %s, 255)' %color
+        main_color   = 'rgba( %s,  %s,  %s, 255)' %color
         shadow_color = 'rgba( 45,  45,  45, 255)'
-
         bottom_border = ''
         if shadow:
             bottom_border = 'border-bottom:1px solid %s;' %shadow_color
 
         style_sheet = "border:0px solid rgba(0,0,0,0); \
-                       background-color: %s; \
+                       background-color:%s; \
                        max-height:1px; \
-                       %s" %(main_color, bottom_border)
-
+                       %s;" %(main_color, bottom_border)
         first_line.setStyleSheet(style_sheet)
 
         if text is None:
@@ -335,22 +347,23 @@ class Splitter(qg.QWidget):
 
         font = qg.QFont()
         font.setBold(True)
-
         text_width = qg.QFontMetrics(font)
         width = text_width.width(text) + 6
 
         label = qg.QLabel()
         label.setText(text)
         label.setFont(font)
-        label.setMaximumWidth(width)
         label.setAlignment(qc.Qt.AlignHCenter | qc.Qt.AlignVCenter)
+        label.setMaximumWidth(width)
 
         self.layout().addWidget(label)
+        #width = label.minimumSizeHint().width()
+        #label.setMaximumWidth(width + 10)
 
         second_line = qg.QFrame()
         second_line.setFrameStyle(qg.QFrame.HLine)
-        second_line.setStyleSheet(style_sheet)
         self.layout().addWidget(second_line)
+        second_line.setStyleSheet(style_sheet)
 
 
 class SplitterLayout(qg.QHBoxLayout):
@@ -362,7 +375,6 @@ class SplitterLayout(qg.QHBoxLayout):
         splitter.setFixedHeight(1)
 
         self.addWidget(splitter)
-
 
 #------------------------------------------------------------------------------#
 
@@ -381,3 +393,4 @@ def delete():
     dialog.deleteLater()
     dialog = None
 
+#------------------------------------------------------------------------------#

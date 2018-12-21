@@ -6,7 +6,7 @@ import pymel.core as pm
 from utils.generic import undo_pm
 
 import maya.OpenMayaUI as mui
-import sip
+import sip, os
 
 START      = 'start'
 END        = 'end'
@@ -22,6 +22,10 @@ class InterpolateIt(qg.QDialog):
         self.setWindowTitle('Interpolate It')
         self.setObjectName('InterpolateIt')
         self.setFixedWidth(314)
+
+        style_sheet_file = qc.QFile(os.path.join(os.path.dirname(__file__), 'stylesheets', 'scheme.qss'))
+        style_sheet_file.open(qc.QFile.ReadOnly)
+        self.setStyleSheet(qc.QLatin1String(style_sheet_file.readAll()))
 
         self.setLayout(qg.QVBoxLayout())
         self.layout().setContentsMargins(0,0,0,0)
