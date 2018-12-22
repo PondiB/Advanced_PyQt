@@ -38,6 +38,7 @@ class InterpolateIt(qg.QDialog):
         self.layout().addWidget(scroll_area)
 
         main_widget = qg.QWidget()
+        main_widget.setObjectName('InterpolateIt')
         main_layout = qg.QVBoxLayout()
         main_layout.setContentsMargins(5,5,5,5)
         main_layout.setAlignment(qc.Qt.AlignTop)
@@ -151,6 +152,7 @@ class InterpolateWidget(qg.QFrame):
         title_layout.addWidget(title_line)
 
         self.close_bttn = qg.QPushButton('X')
+        self.close_bttn.setObjectName('roundedButton')
         self.close_bttn.setFixedHeight(20)
         self.close_bttn.setFixedWidth(20)
         title_layout.addWidget(self.close_bttn)
