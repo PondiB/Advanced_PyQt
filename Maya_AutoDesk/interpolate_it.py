@@ -8,6 +8,9 @@ from utils.generic import undo_pm
 import maya.OpenMayaUI as mui
 import sip, os
 
+import widgets.button as button; reload(button)
+from widgets.button import DT_Button
+
 START      = 'start'
 END        = 'end'
 CACHE      = 'cache'
@@ -157,7 +160,7 @@ class InterpolateWidget(qg.QFrame):
         self.close_bttn.setFixedWidth(20)
         title_layout.addWidget(self.close_bttn)
 
-        store_items = qg.QPushButton('Store Items')
+        store_items = DT_Button('Store Items')
         clear_items = qg.QPushButton('Clear Items')
 
         select_layout.addSpacerItem(qg.QSpacerItem(5, 5, qg.QSizePolicy.Expanding))
