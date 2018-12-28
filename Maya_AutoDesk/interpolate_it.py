@@ -9,7 +9,7 @@ import maya.OpenMayaUI as mui
 import sip, os
 
 import widgets.button as button; reload(button)
-from widgets.button import DT_Button
+from widgets.button import DT_Button, DT_ButtonThin, DT_CloseButton
 
 START      = 'start'
 END        = 'end'
@@ -59,7 +59,7 @@ class InterpolateIt(qg.QDialog):
         button_layout.setAlignment(qc.Qt.AlignRight)
         main_layout.addLayout(button_layout)
 
-        add_button = qg.QPushButton('New..')
+        add_button = DT_ButtonThin('New..')
         button_layout.addWidget(add_button)
 
         new_widget = InterpolateWidget()
@@ -154,10 +154,7 @@ class InterpolateWidget(qg.QFrame):
         title_line = qg.QLineEdit('Untitled')
         title_layout.addWidget(title_line)
 
-        self.close_bttn = qg.QPushButton('X')
-        self.close_bttn.setObjectName('roundedButton')
-        self.close_bttn.setFixedHeight(20)
-        self.close_bttn.setFixedWidth(20)
+        self.close_bttn = DT_CloseButton('X')
         title_layout.addWidget(self.close_bttn)
 
         store_items = DT_Button('Store Items')
@@ -168,9 +165,9 @@ class InterpolateWidget(qg.QFrame):
         select_layout.addWidget(clear_items)
         select_layout.addSpacerItem(qg.QSpacerItem(5, 5, qg.QSizePolicy.Expanding))
 
-        self.store_start_bttn = DT_Button('Store Start')
-        self.reset_item_bttn  = DT_Button('Reset')
-        self.store_end_bttn   = DT_Button('Store End')
+        self.store_start_bttn = DT_ButtonThin('Store Start')
+        self.reset_item_bttn  = DT_ButtonThin('Reset')
+        self.store_end_bttn   = DT_ButtonThin('Store End')
 
         button_layout.addWidget(self.store_start_bttn)
         button_layout.addWidget(self.reset_item_bttn)

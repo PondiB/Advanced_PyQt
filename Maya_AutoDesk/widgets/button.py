@@ -57,12 +57,9 @@ class DT_Button(qg.QPushButton):
         qg.QPushButton.__init__(self, *args, **kwargs)
         self.setFixedHeight(27)
 
-        font = qg.QFont()
-        font.setPointSize(8)
-        font.setFamily("Calibri")
-        self.setFont(font)
+        self._radius = 5
 
-        self.font_metrics = qg.QFontMetrics(font)
+        self.font_metrics = qg.QFontMetrics(self.font())
 
 
 
@@ -78,7 +75,7 @@ class DT_Button(qg.QPushButton):
 
         painter.setRenderHint(qg.QPainter.Antialiasing)
 
-        radius = 5
+        radius = self._radius
 
         gradient = self._gradient[NORMAL]
         offset = 0
@@ -125,3 +122,62 @@ class DT_Button(qg.QPushButton):
 
             painter.setPen(self._pens_text_disabled)
             painter.drawText(x, y+offset, width, height, alignment, text)
+
+#--------------------------------------------------------------------------------------------------#
+
+class DT_ButtonThin(DT_Button):
+    def __init__(self, *args, **kwargs):
+        DT_Button.__init__(self, *args, **kwargs)
+        self._radius = 10
+        self.setFixedHeight(22)
+
+#--------------------------------------------------------------------------------------------------#
+
+class DT_CloseButton(DT_Button):
+    def __init__(self, *args, **kwargs):
+        DT_Button.__init__(self, *args, **kwargs)
+        self._radius = 10
+        self.setFixedHeight(20)
+        self.setFixedWidth(20)
+
+
+    def paintEvent(self, event):
+        painter = qg.QStylePainter(self)
+        option  = qg.QStyleOption()
+        option.initFrom(self)
+
+        x = option.rect.x()
+        y = option.rect.y()
+        height = option.rect.height() - 1
+        width  = option.rect.width()  - 1
+
+        painter.setRenderHint(qg.QPainter.Antialiasing)
+
+        gradient = self._gradient[NORMAL]
+        offset = 0
+        if self.isDown():
+            gradient = self._gradient[DOWN]
+            offset = 1
+        elif not self.isEnabled():
+            gradient = self._gradient[DISABLED]
+
+        painter.setPen(self._pens_border)
+        painter.drawEllipse(x+1, y+1, width-1, height-1)
+
+        painter.setPen(self._pens_clear)
+        painter.setBrush(gradient[OUTER])
+        painter.drawEllipse(x+2, y+2, width-3, height-2)
+
+        painter.setBrush(gradient[INNER])
+        painter.drawEllipse(x+3, y+3, width-5, height-4)
+
+        painter.setBrush(self._brush_clear)
+
+        line_path = qg.QPainterPath()
+        line_path.moveTo( x+8,  y+8)
+        line_path.lineTo(x+12, x+12)
+        line_path.moveTo(x+12,  y+8)
+        line_path.lineTo( x+8, y+12)
+
+        painter.setPen(self._pens_border)
+        painter.drawPath(line_path)
