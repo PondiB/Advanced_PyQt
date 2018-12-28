@@ -55,6 +55,14 @@ class DT_Button(qg.QPushButton):
 
     def __init__(self, *args, **kwargs):
         qg.QPushButton.__init__(self, *args, **kwargs)
+        self.setFixedHeight(27)
+
+        font = qg.QFont()
+        font.setPointSize(8)
+        font.setFamily("Calibri")
+        self.setFont(font)
+
+        self.font_metrics = qg.QFontMetrics(font)
 
 
 
@@ -80,8 +88,40 @@ class DT_Button(qg.QPushButton):
         elif not self.isEnabled():
             gradient = self._gradient[DISABLED]
 
+        painter.setBrush(self._brush_border)
+        painter.setPen(self._pens_border)
+        painter.drawRoundedRect(qc.QRect(x+1, y+1, width-1, height-1), radius, radius)
+
+        painter.setPen(self._pens_clear)
+
         painter.setBrush(gradient[OUTER])
         painter.drawRoundedRect(qc.QRect(x+2, y+2, width-3, height-3), radius, radius)
 
         painter.setBrush(gradient[INNER])
         painter.drawRoundedRect(qc.QRect(x+3, y+3, width-5, height-5), radius-1, radius-1)
+
+        # draw text
+        #
+        text = self.text()
+        font = self.font()
+
+        text_width  = self.font_metrics.width(text)
+        text_height = font.pointSize()
+
+        text_path = qg.QPainterPath()
+        text_path.addText((width-text_width)/2, height-((height-text_height)/2) - 1 + offset, font, text)
+
+        alignment = (qc.Qt.AlignHCenter | qc.Qt.AlignVCenter)
+
+        if self.isEnabled():
+            painter.setPen(self._pens_shadow)
+            painter.drawPath(text_path)
+
+            painter.setPen(self._pens_text)
+            painter.drawText(x, y+offset, width, height, alignment, text)
+        else:
+            painter.setPen(self._pens_shadow_disabled)
+            painter.drawPath(text_path)
+
+            painter.setPen(self._pens_text_disabled)
+            painter.drawText(x, y+offset, width, height, alignment, text)

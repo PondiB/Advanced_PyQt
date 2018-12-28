@@ -161,16 +161,16 @@ class InterpolateWidget(qg.QFrame):
         title_layout.addWidget(self.close_bttn)
 
         store_items = DT_Button('Store Items')
-        clear_items = qg.QPushButton('Clear Items')
+        clear_items = DT_Button('Clear Items')
 
         select_layout.addSpacerItem(qg.QSpacerItem(5, 5, qg.QSizePolicy.Expanding))
         select_layout.addWidget(store_items)
         select_layout.addWidget(clear_items)
         select_layout.addSpacerItem(qg.QSpacerItem(5, 5, qg.QSizePolicy.Expanding))
 
-        self.store_start_bttn = qg.QPushButton('Store Start')
-        self.reset_item_bttn  = qg.QPushButton('Reset')
-        self.store_end_bttn   = qg.QPushButton('Store End')
+        self.store_start_bttn = DT_Button('Store Start')
+        self.reset_item_bttn  = DT_Button('Reset')
+        self.store_end_bttn   = DT_Button('Store End')
 
         button_layout.addWidget(self.store_start_bttn)
         button_layout.addWidget(self.reset_item_bttn)
