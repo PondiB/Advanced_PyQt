@@ -3,22 +3,13 @@ import PyQt4.QtGui as qg
 
 from PyQt4.QtGui import QPen, QColor, QBrush, QLinearGradient
 
+import base; reload(base)
+
 NORMAL, DOWN, DISABLED = 1, 2, 3
 INNER, OUTER = 1, 2
 
 
-class DT_Button(qg.QPushButton):
-    _pens_text   = QPen(qg.QColor(202, 207, 210), 1, qc.Qt.SolidLine)
-    _pens_shadow = QPen(qg.QColor(  9,  10,  12), 1, qc.Qt.SolidLine)
-    _pens_border = QPen(qg.QColor(  9,  10,  12), 2, qc.Qt.SolidLine)
-    _pens_clear  = QPen(qg.QColor(  0,  0, 0, 0), 1, qc.Qt.SolidLine)
-
-    _pens_text_disabled   = QPen(QColor(102, 107, 110), 1, qc.Qt.SolidLine)
-    _pens_shadow_disabled = QPen(QColor(  0,   0,   0), 1, qc.Qt.SolidLine)
-
-    _brush_clear  = QBrush(qg.QColor(0, 0, 0, 0))
-    _brush_border = QBrush(qg.QColor( 9, 10, 12))
-
+class DT_Button(qg.QPushButton, base.Base):
     _gradient = {NORMAL:{}, DOWN:{}, DISABLED:{}}
 
     inner_gradient = QLinearGradient(0, 3, 0, 24)
@@ -55,6 +46,7 @@ class DT_Button(qg.QPushButton):
 
     def __init__(self, *args, **kwargs):
         qg.QPushButton.__init__(self, *args, **kwargs)
+        base.Base.__init__(self)
         self.setFixedHeight(27)
 
         self._radius = 5
@@ -97,6 +89,8 @@ class DT_Button(qg.QPushButton):
         painter.setBrush(gradient[INNER])
         painter.drawRoundedRect(qc.QRect(x+3, y+3, width-5, height-5), radius-1, radius-1)
 
+        painter.setBrush(self._brush_clear)
+
         # draw text
         #
         text = self.text()
@@ -108,6 +102,9 @@ class DT_Button(qg.QPushButton):
         text_path = qg.QPainterPath()
         text_path.addText((width-text_width)/2, height-((height-text_height)/2) - 1 + offset, font, text)
 
+        glow_index = self._glow_index
+        glow_pens  = self._glow_pens
+
         alignment = (qc.Qt.AlignHCenter | qc.Qt.AlignVCenter)
 
         if self.isEnabled():
@@ -116,6 +113,15 @@ class DT_Button(qg.QPushButton):
 
             painter.setPen(self._pens_text)
             painter.drawText(x, y+offset, width, height, alignment, text)
+
+            if glow_index > 0:
+                for index in range(3):
+                    painter.setPen(glow_pens[glow_index][index])
+                    painter.drawPath(text_path)
+
+                painter.setPen(glow_pens[glow_index][3])
+                painter.drawText(x, y+offset, width, height, alignment, text)
+
         else:
             painter.setPen(self._pens_shadow_disabled)
             painter.drawPath(text_path)
@@ -181,3 +187,14 @@ class DT_CloseButton(DT_Button):
 
         painter.setPen(self._pens_border)
         painter.drawPath(line_path)
+
+        glow_index = self._glow_index
+        glow_pens  = self._glow_pens
+
+        if glow_index > 0:
+            for index in range(3):
+                painter.setPen(glow_pens[glow_index][index])
+                painter.drawPath(line_path)
+
+            painter.setPen(glow_pens[glow_index][3])
+            painter.drawPath(line_path)

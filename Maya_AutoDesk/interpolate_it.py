@@ -8,8 +8,9 @@ from utils.generic import undo_pm
 import maya.OpenMayaUI as mui
 import sip, os
 
-import widgets.button as button; reload(button)
+import widgets.checkbox as checkbox; reload(checkbox)
 from widgets.button import DT_Button, DT_ButtonThin, DT_CloseButton
+from widgets.checkbox import DT_Checkbox
 
 START      = 'start'
 END        = 'end'
@@ -183,8 +184,8 @@ class InterpolateWidget(qg.QFrame):
         slider_layout.addWidget(self.slider)
         slider_layout.addWidget(self.end_lb)
 
-        self.transforms_chbx = qg.QCheckBox('Transform')
-        self.attributes_chbx = qg.QCheckBox('UD Attributes')
+        self.transforms_chbx = DT_Checkbox('Transform')
+        self.attributes_chbx = DT_Checkbox('UD Attributes')
         self.transforms_chbx.setCheckState(qc.Qt.Checked)
         check_layout.addWidget(self.transforms_chbx)
         check_layout.addWidget(self.attributes_chbx)
