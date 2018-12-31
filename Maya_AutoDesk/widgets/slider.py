@@ -18,16 +18,16 @@ class DT_Slider(qg.QSlider, base.Base):
                                 qg.QBrush(qg.QColor(0, 255, 0, 25.5 * index)),
                                 qg.QBrush(qg.QColor(0, 255, 0,   15 * index))]
 
-    _pens_dark  = QPen(QColor( 0,  5,  9), 1, qc.Qt.SolidLine)
-    _pens_light = QPen(QColor(16, 17, 19), 1, qc.Qt.SolidLine)
+    _pens_dark  = qg.QPen(qg.QColor( 0,  5,  9), 1, qc.Qt.SolidLine)
+    _pens_light = qg.QPen(qg.QColor(16, 17, 19), 1, qc.Qt.SolidLine)
 
-    _gradient_inner = QLinearGradient(0, 9, 0, 15)
-    _gradient_inner.setColorAt(0, QColor(69, 73, 76))
-    _gradient_inner.setColorAt(1, QColor(17, 18, 20))
+    _gradient_inner = qg.QLinearGradient(0, 9, 0, 15)
+    _gradient_inner.setColorAt(0, qg.QColor(69, 73, 76))
+    _gradient_inner.setColorAt(1, qg.QColor(17, 18, 20))
 
-    _gradient_outer = QLinearGradient(0, 9, 0, 15)
-    _gradient_outer.setColorAt(0, QColor(53, 57, 60))
-    _gradient_outer.setColorAt(1, QColor(33, 34, 36))
+    _gradient_outer = qg.QLinearGradient(0, 9, 0, 15)
+    _gradient_outer.setColorAt(0, qg.QColor(53, 57, 60))
+    _gradient_outer.setColorAt(1, qg.QColor(33, 34, 36))
 
 
     def __init__(self, *args, **kwargs):
@@ -42,9 +42,9 @@ class DT_Slider(qg.QSlider, base.Base):
         self._tracking_points = {}
 
         self._anim_follow_timer = qc.QTimer()
-        #self._anim_follow_timer.timeout.connect(self._removeTrackingPoints)
+        self._anim_follow_timer.timeout.connect(self._removeTrackingPoints)
 
-        #self.valueChanged.connect(self._trackChanges)
+        self.valueChanged.connect(self._trackChanges)
         self._updateTracking()
 
     #-----------------------------------------------------------------------------------------#
@@ -70,6 +70,34 @@ class DT_Slider(qg.QSlider, base.Base):
         qg.QSlider.setValue(self, *args, **kwargs)
         for index in range(len(self._tracking_points)):
             self._tracking_points[index] = 0
+
+    #-----------------------------------------------------------------------------------------#
+
+    def mouseMoveEvent(self, event):
+        qg.QSlider.mouseMoveEvent(self, event)
+
+        if self._anim_follow_timer.isActive():
+            return
+
+        self._anim_follow_timer.start(30)
+
+
+    def _trackChanges(self, value):
+        value = value - self.minimum()
+        self._tracking_points[value] = 10
+
+
+    def _removeTrackingPoints(self):
+        self._track = False
+        for index, value in enumerate(self._tracking_points):
+            if value > 0:
+                self._tracking_points[index] -= 1
+                self._track = True
+
+        if self._track is False:
+            self._anim_follow_timer.stop()
+
+        utils.executeDeferred(self.update)
 
     #-----------------------------------------------------------------------------------------#
 
@@ -112,6 +140,13 @@ class DT_Slider(qg.QSlider, base.Base):
 
         glow_index   = self._glow_index
         glow_brushes = self._glow_brushes
+
+        if self._track is True:
+            for index, track_value in enumerate(self._tracking_points):
+                if track_value == 0: continue
+                track_center =  10 + (increment * index)
+                painter.setBrush(glow_brushes[track_value][4])
+                painter.drawEllipse(qc.QPoint(track_center, mid_height), 7, 7)
 
         if glow_index > 0:
             for index, size in zip(range(4), range(10, 6, -1)):
