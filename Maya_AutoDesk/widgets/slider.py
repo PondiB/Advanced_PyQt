@@ -18,16 +18,16 @@ class DT_Slider(qg.QSlider, base.Base):
                                 qg.QBrush(qg.QColor(0, 255, 0, 25.5 * index)),
                                 qg.QBrush(qg.QColor(0, 255, 0,   15 * index))]
 
-    _pens_dark  = qg.QPen(qg.QColor( 0,  5,  9), 1, qc.Qt.SolidLine)
-    _pens_light = qg.QPen(qg.QColor(16, 17, 19), 1, qc.Qt.SolidLine)
+    _pens_dark  = QPen(QColor( 0,  5,  9), 1, qc.Qt.SolidLine)
+    _pens_light = QPen(QColor(16, 17, 19), 1, qc.Qt.SolidLine)
 
-    _gradient_inner = qg.QLinearGradient(0, 9, 0, 15)
-    _gradient_inner.setColorAt(0, qg.QColor(69, 73, 76))
-    _gradient_inner.setColorAt(1, qg.QColor(17, 18, 20))
+    _gradient_inner = QLinearGradient(0, 9, 0, 15)
+    _gradient_inner.setColorAt(0, QColor(69, 73, 76))
+    _gradient_inner.setColorAt(1, QColor(17, 18, 20))
 
-    _gradient_outer = qg.QLinearGradient(0, 9, 0, 15)
-    _gradient_outer.setColorAt(0, qg.QColor(53, 57, 60))
-    _gradient_outer.setColorAt(1, qg.QColor(33, 34, 36))
+    _gradient_outer = QLinearGradient(0, 9, 0, 15)
+    _gradient_outer.setColorAt(0, QColor(53, 57, 60))
+    _gradient_outer.setColorAt(1, QColor(33, 34, 36))
 
 
     def __init__(self, *args, **kwargs):

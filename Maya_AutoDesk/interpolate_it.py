@@ -8,11 +8,12 @@ from utils.generic import undo_pm
 import maya.OpenMayaUI as mui
 import sip, os
 
-import widgets.slider as slider; reload(slider)
+import widgets.line_edit as line_edit; reload(line_edit)
 from widgets.button import DT_Button, DT_ButtonThin, DT_CloseButton
 from widgets.checkbox import DT_Checkbox
 from widgets.label import DT_Label
 from widgets.slider import DT_Slider
+from widgets.line_edit import DT_LineEdit
 
 
 START      = 'start'
@@ -155,7 +156,8 @@ class InterpolateWidget(qg.QFrame):
         main_widget.layout().addLayout(slider_layout)
         main_widget.layout().addLayout(check_layout)
 
-        title_line = qg.QLineEdit('Untitled')
+        title_line = DT_LineEdit()
+        title_line.setPlaceholderMessage('Untitled')
         title_layout.addWidget(title_line)
 
         self.close_bttn = DT_CloseButton('X')
