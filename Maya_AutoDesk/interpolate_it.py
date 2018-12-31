@@ -8,9 +8,12 @@ from utils.generic import undo_pm
 import maya.OpenMayaUI as mui
 import sip, os
 
-import widgets.checkbox as checkbox; reload(checkbox)
+import widgets.slider as slider; reload(slider)
 from widgets.button import DT_Button, DT_ButtonThin, DT_CloseButton
 from widgets.checkbox import DT_Checkbox
+from widgets.label import DT_Label
+from widgets.slider import DT_Slider
+
 
 START      = 'start'
 END        = 'end'
@@ -174,11 +177,10 @@ class InterpolateWidget(qg.QFrame):
         button_layout.addWidget(self.reset_item_bttn)
         button_layout.addWidget(self.store_end_bttn)
 
-        self.start_lb = qg.QLabel('Start')
-        self.slider = qg.QSlider()
+        self.start_lb = DT_Label('Start')
+        self.slider = DT_Slider()
         self.slider.setRange(0, 49)
-        self.slider.setOrientation(qc.Qt.Horizontal)
-        self.end_lb = qg.QLabel('End')
+        self.end_lb = DT_Label('End')
 
         slider_layout.addWidget(self.start_lb)
         slider_layout.addWidget(self.slider)
@@ -204,6 +206,8 @@ class InterpolateWidget(qg.QFrame):
         self.reset_item_bttn.clicked.connect(self.resetAttributes)
 
         self.slider.valueChanged.connect(self.setLinearInterpolation)
+        self.slider.valueChanged.connect(self.changeLabelGlow)
+
         self.slider.sliderReleased.connect(self._endSliderUndo)
 
         self.enableButtons(False)
@@ -414,6 +418,13 @@ class InterpolateWidget(qg.QFrame):
             for attr in cache.keys():
                 if cache[attr] == None: continue
                 pm.setAttr(node.attr(attr), cache[attr][value])
+
+    #------------------------------------------------------------------------------------------#
+
+    def changeLabelGlow(self, value):
+        glow_value = int(float(value) / self.slider.maximum() * 100)
+        self.start_lb.setGlowValue(100 - glow_value)
+        self.end_lb.setGlowValue(glow_value)
 
     #------------------------------------------------------------------------------------------#
 

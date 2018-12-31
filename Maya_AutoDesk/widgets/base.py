@@ -1,10 +1,11 @@
 import PyQt4.QtCore as qc
 import PyQt4.QtGui as qg
 
-from PyQt4.QtGui import QPen, QColor, QBrush, QLinearGradient
+from PyQt4.QtGui import QPen, QColor, QBrush
 
 import maya.utils as utils
 
+#--------------------------------------------------------------------------------------------------#
 
 class Base(object):
     _glow_pens = {}

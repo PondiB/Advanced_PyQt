@@ -3,11 +3,12 @@ import PyQt4.QtGui as qg
 
 from PyQt4.QtGui import QPen, QColor, QBrush, QLinearGradient
 
-import base; reload(base)
+import base
 
 NORMAL, DOWN, DISABLED = 1, 2, 3
 INNER, OUTER = 1, 2
 
+#--------------------------------------------------------------------------------------------------#
 
 class DT_Button(qg.QPushButton, base.Base):
     _gradient = {NORMAL:{}, DOWN:{}, DISABLED:{}}
