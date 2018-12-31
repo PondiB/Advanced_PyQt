@@ -10,6 +10,14 @@ import base
 #--------------------------------------------------------------------------------------------------#
 
 class DT_Slider(qg.QSlider, base.Base):
+    _glow_brushes = {}
+    for index in range(1, 11):
+        _glow_brushes[index] = [qg.QBrush(qg.QColor(0, 255, 0,    1 * index)),
+                                qg.QBrush(qg.QColor(0, 255, 0,    3 * index)),
+                                qg.QBrush(qg.QColor(0, 255, 0,    8 * index)),
+                                qg.QBrush(qg.QColor(0, 255, 0, 25.5 * index)),
+                                qg.QBrush(qg.QColor(0, 255, 0,   15 * index))]
+
     _pens_dark  = QPen(QColor( 0,  5,  9), 1, qc.Qt.SolidLine)
     _pens_light = QPen(QColor(16, 17, 19), 1, qc.Qt.SolidLine)
 
@@ -29,6 +37,39 @@ class DT_Slider(qg.QSlider, base.Base):
         self.setOrientation(qc.Qt.Horizontal)
         self.setFixedHeight(22)
         self.setMinimumWidth(50)
+
+        self._track = False
+        self._tracking_points = {}
+
+        self._anim_follow_timer = qc.QTimer()
+        #self._anim_follow_timer.timeout.connect(self._removeTrackingPoints)
+
+        #self.valueChanged.connect(self._trackChanges)
+        self._updateTracking()
+
+    #-----------------------------------------------------------------------------------------#
+
+    def setRange(self, *args, **kwargs):
+        qg.QSlider.setRange(self, *args, **kwargs)
+        self._updateTracking()
+
+    def setMinimum(self, *args, **kwargs):
+        qg.QSlider.setMinimum(self, *args, **kwargs)
+        self._updateTracking()
+
+    def setMaximum(self, *args, **kwargs):
+        qg.QSlider.setMaximum(self, *args, **kwargs)
+        self._updateTracking()
+
+    def _updateTracking(self):
+        self._tracking_points = [0] * (abs(self.maximum() - self.minimum()) + 1)
+
+    #-----------------------------------------------------------------------------------------#
+
+    def setValue(self, *args, **kwargs):
+        qg.QSlider.setValue(self, *args, **kwargs)
+        for index in range(len(self._tracking_points)):
+            self._tracking_points[index] = 0
 
     #-----------------------------------------------------------------------------------------#
 
@@ -68,6 +109,14 @@ class DT_Slider(qg.QSlider, base.Base):
         center_point = qc.QPoint(x + center, y + mid_height)
 
         painter.setPen(self._pens_clear)
+
+        glow_index   = self._glow_index
+        glow_brushes = self._glow_brushes
+
+        if glow_index > 0:
+            for index, size in zip(range(4), range(10, 6, -1)):
+                painter.setBrush(glow_brushes[glow_index][index])
+                painter.drawEllipse(center_point, size, size)
 
         painter.setBrush(qg.QBrush(self._gradient_outer))
         painter.drawEllipse(center_point, 6, 6)
