@@ -31,12 +31,48 @@ class DT_LineEdit(qg.QLineEdit):
 
         self._placeholder_message = ''
 
+        self._text_glow = {}
+        self._previous_text = ''
+
+        text = self.text()
+        if text: self.setText(text)
+
+        self._anim_timer = qc.QTimer()
+
+    #------------------------------------------------------------------------------------------#
+
+    def setText(self, *args):
+        qg.QLineEdit.setText(self, *args)
+        self._text_glow = {}
+        for index in range(len(text)):
+            self._text_glow[index] = 0
 
 
     def setPlaceholderMessage(self, message):
         self._placeholder_message = str(message)
 
+    #------------------------------------------------------------------------------------------#
 
+    def keyPressEvent(self, *args):
+        qg.QLineEdit.keyPressEvent(self, *args)
+        text = self.text()
+
+        if text == self._previous_text: return
+
+        len_text = len(text)
+        if len_text > len(self._previous_text):
+            self._anim_timer.start(30)
+            self._text_glow[len_text-1] = 0
+            self._text_glow[self.cursorPosition()-1] = 10
+
+        elif len(self._text_glow.keys()) == 0:
+            self._anim_timer.stop()
+
+        self._previous_text = text
+
+        print self._text_glow
+
+    #------------------------------------------------------------------------------------------#
 
     def paintEvent(self, event):
         painter = qg.QStylePainter(self)
@@ -65,3 +101,10 @@ class DT_LineEdit(qg.QLineEdit):
         painter.drawText(x+1, y+1, width, height, alignment, text)
         painter.setPen(self._pens_text)
         painter.drawText(contents, alignment, text)
+
+        cursor_pos = self.cursorPosition()
+        text_width = font_metrics.width(text[0:cursor_pos])
+        pos  = x + text_width
+        top  = y + 1
+        bttm = y + height - 1
+        painter.drawLine(pos, top, pos, bttm)
