@@ -38,6 +38,7 @@ class DT_LineEdit(qg.QLineEdit):
         if text: self.setText(text)
 
         self._anim_timer = qc.QTimer()
+        self._anim_timer.timeout.connect(self._animateText)
 
     #------------------------------------------------------------------------------------------#
 
@@ -70,7 +71,18 @@ class DT_LineEdit(qg.QLineEdit):
 
         self._previous_text = text
 
-        print self._text_glow
+
+    def _animateText(self):
+        stop_animating = True
+        for key, value in self._text_glow.items():
+            if value > 0:
+                stop_animating = False
+                self._text_glow[key] = value - 1
+
+        if stop_animating:
+            self._anim_timer.stop()
+
+        utils.executeDeferred(self.update)
 
     #------------------------------------------------------------------------------------------#
 
@@ -95,12 +107,36 @@ class DT_LineEdit(qg.QLineEdit):
             painter.setPen(self._pens_placeholder)
             painter.drawText(contents, alignment, self._placeholder_message)
 
-        x, y, width, height = contents.getRect()
+        glow_pens = self._glow_pens
 
-        painter.setPen(self._pens_shadow)
-        painter.drawText(x+1, y+1, width, height, alignment, text)
-        painter.setPen(self._pens_text)
-        painter.drawText(contents, alignment, text)
+        left_edge = contents.left()
+        for index, letter in enumerate(text):
+            text_width = font_metrics.width(text[0:index])
+            contents.setLeft(left_edge + text_width)
+
+            x, y, width, height = contents.getRect()
+
+            painter.setPen(self._pens_shadow)
+            painter.drawText(x+1, y+1, width, height, alignment, letter)
+            painter.setPen(self._pens_text)
+            painter.drawText(contents, alignment, letter)
+
+            glow_index = self._text_glow[index]
+            if glow_index > 0:
+                text_path = qg.QPainterPath()
+                text_path.addText(contents.left(), font.pixelSize() + 4, font, letter)
+
+                for index in range(3):
+                    painter.setPen(glow_pens[glow_index][index])
+                    painter.drawPath(text_path)
+
+                painter.setPen(glow_pens[glow_index][3])
+                painter.drawText(contents, alignment, letter)
+
+        if not self.hasFocus(): return
+
+        contents.setLeft(left_edge)
+        x, y, width, height = contents.getRect()
 
         cursor_pos = self.cursorPosition()
         text_width = font_metrics.width(text[0:cursor_pos])
